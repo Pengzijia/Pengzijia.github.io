@@ -12,8 +12,8 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const title = "Peng Zijia — Personal Portfolio";
-const description = "Peng Zijia 的个人网站：项目、思考与持续生长中的想法。";
+const title = "Peng Zijia — Growing Digital Organisms";
+const description = "Peng Zijia 的生物未来主义个人网站：项目、观察与持续生长中的数字生命。";
 const socialImage = "https://pengzijia.github.io/og.png";
 
 export const metadata: Metadata = {
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     title,
     description,
     type: "website",
-    images: [{ url: socialImage, width: 1733, height: 908, alt: title }],
+    images: [{ url: socialImage, width: 1731, height: 909, alt: title }],
   },
   twitter: {
     card: "summary_large_image",
