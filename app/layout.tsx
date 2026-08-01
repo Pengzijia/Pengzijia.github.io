@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { headers } from "next/headers";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -13,33 +12,27 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export async function generateMetadata(): Promise<Metadata> {
-  const requestHeaders = await headers();
-  const host = requestHeaders.get("host") ?? "localhost:3000";
-  const protocol = host.includes("localhost") ? "http" : "https";
-  const baseUrl = new URL(`${protocol}://${host}`);
-  const title = "Peng Zijia — Personal Portfolio";
-  const description = "Peng Zijia 的个人网站：项目、思考与持续生长中的想法。";
-  const socialImage = new URL("/og.png", baseUrl).toString();
+const title = "Peng Zijia — Personal Portfolio";
+const description = "Peng Zijia 的个人网站：项目、思考与持续生长中的想法。";
+const socialImage = "https://pengzijia.github.io/og.png";
 
-  return {
-    metadataBase: baseUrl,
+export const metadata: Metadata = {
+  metadataBase: new URL("https://pengzijia.github.io"),
+  title,
+  description,
+  openGraph: {
     title,
     description,
-    openGraph: {
-      title,
-      description,
-      type: "website",
-      images: [{ url: socialImage, width: 1733, height: 908, alt: title }],
-    },
-    twitter: {
-      card: "summary_large_image",
-      title,
-      description,
-      images: [socialImage],
-    },
-  };
-}
+    type: "website",
+    images: [{ url: socialImage, width: 1733, height: 908, alt: title }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title,
+    description,
+    images: [socialImage],
+  },
+};
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (

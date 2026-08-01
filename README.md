@@ -28,3 +28,7 @@ pnpm dev
 2. 把三个项目卡片改成真实项目，并更新链接。
 3. 将随笔链接连接到你的真实文章。
 4. 根据需要修改 `app/layout.tsx` 中的网站标题和简介。
+
+## GitHub Pages 自动发布
+
+网站使用 `.github/workflows/deploy-pages.yml` 自动发布。以后修改内容并推送到 `main` 分支，GitHub 会自动构建和更新 `https://pengzijia.github.io/`。
