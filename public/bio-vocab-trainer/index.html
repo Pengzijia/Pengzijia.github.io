@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="本地运行的生物专业高频词刷词工具" />
+  <link rel="icon" href="data:," />
+  <title>BioLoop · 生物专业刷词器</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="#" aria-label="BioLoop 首页">
+        <span class="brand-mark" aria-hidden="true">
+          <span></span><span></span><span></span>
+        </span>
+        <span><strong>BioLoop</strong><small>生物专业刷词器</small></span>
+      </a>
+
+      <nav class="nav" aria-label="主导航">
+        <button class="nav-item active" data-view="study">
+          <span class="nav-icon">◎</span><span>今日刷词</span><b id="dueBadge">0</b>
+        </button>
+        <button class="nav-item" data-view="confusions">
+          <span class="nav-icon">⇄</span><span>易混词对比</span>
+        </button>
+        <button class="nav-item" data-view="roots">
+          <span class="nav-icon">⌘</span><span>词根网络</span>
+        </button>
+        <button class="nav-item" data-view="lexicon">
+          <span class="nav-icon">⌕</span><span>术语词库</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-bottom">
+        <div class="mini-progress">
+          <div><span>本轮掌握</span><strong id="masteredCount">0 / 0</strong></div>
+          <div class="progress-track"><i id="masteredBar"></i></div>
+        </div>
+        <button class="ghost-button" id="exportButton">导出学习进度</button>
+        <button class="text-button" id="resetButton">重置本地记录</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow" id="pageEyebrow">TODAY'S SESSION</p>
+          <h1 id="pageTitle">把专业词汇，变成你的直觉。</h1>
+        </div>
+        <div class="top-stats">
+          <div class="stat-pill"><span>连续学习</span><strong><i>🔥</i> <em id="streakCount">1</em> 天</strong></div>
+          <div class="stat-pill"><span>累计掌握</span><strong id="totalMastered">0 词</strong></div>
+        </div>
+      </header>
+
+      <section class="view active" id="studyView">
+        <div class="study-toolbar">
+          <div class="segmented" role="group" aria-label="卡片方向">
+            <button class="active" data-direction="en-zh">英 → 中</button>
+            <button data-direction="zh-en">中 → 英</button>
+          </div>
+          <label class="select-wrap">
+            <span>词库</span>
+            <select id="categorySelect"><option value="all">全部领域</option></select>
+          </label>
+          <button class="shuffle-button" id="shuffleButton" title="重新打乱">↻ 随机一组</button>
+        </div>
+
+        <div class="study-layout">
+          <div class="session-column">
+            <div class="session-meta">
+              <div><span>本轮进度</span><strong id="sessionStep">1 / 10</strong></div>
+              <div class="dots" id="sessionDots" aria-label="本轮进度"></div>
+            </div>
+
+            <button class="flashcard" id="flashcard" aria-label="点击翻转词卡">
+              <div class="card-inner">
+                <article class="card-face card-front">
+                  <div class="card-label"><span id="frontCategory">分子生物学</span><i>点击翻转</i></div>
+                  <div class="card-content">
+                    <p class="phonetic" id="frontPhonetic"></p>
+                    <h2 id="frontTerm">transcription</h2>
+                    <p class="prompt" id="frontPrompt">你能说出它的中文含义吗？</p>
+                  </div>
+                  <div class="card-hint">SPACE <span>翻转卡片</span></div>
+                </article>
+                <article class="card-face card-back">
+                  <div class="card-label"><span id="backCategory">分子生物学</span><i>答案</i></div>
+                  <div class="answer-block">
+                    <div class="answer-heading">
+                      <div><p id="backPhonetic"></p><h2 id="backTerm"></h2></div>
+                      <strong id="backChinese"></strong>
+                    </div>
+                    <div class="context-box">
+                      <span>语境记忆</span>
+                      <p id="backExample"></p>
+                    </div>
+                    <div class="root-line"><span>词根拆解</span><p id="backRoots"></p></div>
+                  </div>
+                  <div class="card-hint">SPACE <span>返回正面</span></div>
+                </article>
+              </div>
+            </button>
+
+            <div class="rating-panel" id="ratingPanel">
+              <button class="rating again" data-rating="again"><kbd>1</kbd><span><strong>忘记了</strong><small>稍后再来</small></span></button>
+              <button class="rating hard" data-rating="hard"><kbd>2</kbd><span><strong>有点模糊</strong><small>明天复习</small></span></button>
+              <button class="rating easy" data-rating="easy"><kbd>3</kbd><span><strong>认识</strong><small>拉长间隔</small></span></button>
+            </div>
+          </div>
+
+          <aside class="insight-panel">
+            <div class="insight-card">
+              <span class="insight-icon">◒</span>
+              <p class="eyebrow">MEMORY TIP</p>
+              <h3>先回忆，再翻面</h3>
+              <p>哪怕只停顿 3 秒，主动提取也比直接重读更容易形成长期记忆。</p>
+            </div>
+            <div class="today-card">
+              <div class="today-head"><span>今日目标</span><strong id="goalText">0%</strong></div>
+              <div class="goal-ring" id="goalRing"><span id="goalDone">0</span><small>/ 20 词</small></div>
+              <p id="goalEncourage">完成第一张词卡，启动今天的记忆回路。</p>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="view" id="confusionsView">
+        <div class="section-intro">
+          <div><p class="eyebrow">CONFUSABLE PAIRS</p><h2>差一点，意思差很多。</h2></div>
+          <p>把易混词放在同一个语境里比较，记住它们真正的分界线。</p>
+        </div>
+        <div class="confusion-tabs" id="confusionTabs"></div>
+        <div class="comparison-card" id="comparisonCard"></div>
+        <div class="quick-check" id="quickCheck"></div>
+      </section>
+
+      <section class="view" id="rootsView">
+        <div class="section-intro">
+          <div><p class="eyebrow">WORD ROOT NETWORK</p><h2>从一个词根，长出一片词汇。</h2></div>
+          <p>点击词根或术语节点，观察构词规律；同根词会被自动串联。</p>
+        </div>
+        <div class="root-workspace">
+          <div class="root-list" id="rootList"></div>
+          <div class="network-card">
+            <svg id="rootNetwork" viewBox="0 0 820 500" role="img" aria-label="词根网络图"></svg>
+          </div>
+          <aside class="root-detail" id="rootDetail"></aside>
+        </div>
+      </section>
+
+      <section class="view" id="lexiconView">
+        <div class="section-intro lexicon-intro">
+          <div><p class="eyebrow">BIOLOGY LEXICON</p><h2>你的本地生物术语库。</h2></div>
+          <div class="search-box"><span>⌕</span><input id="searchInput" type="search" placeholder="搜索英文、中文或词根…" /></div>
+        </div>
+        <div class="filter-row" id="categoryFilters"></div>
+        <div class="lexicon-meta"><span id="resultCount"></span><span>学习数据仅保存在当前浏览器</span></div>
+        <div class="term-grid" id="termGrid"></div>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" role="status"></div>
+  <script src="data.js"></script>
+  <script src="expanded-data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
