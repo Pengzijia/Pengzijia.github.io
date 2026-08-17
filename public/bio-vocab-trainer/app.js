@@ -4,6 +4,7 @@ const SESSION_SIZE = 10;
 
 const state = {
   view: "study",
+  studyMode: "flashcard",
   direction: "en-zh",
   category: "all",
   queue: [],
@@ -13,7 +14,9 @@ const state = {
   confusion: CONFUSIONS[0].id,
   root: ROOTS[0].id,
   lexiconCategory: "all",
-  query: ""
+  query: "",
+  choiceOptions: [],
+  choiceAnswered: false
 };
 
 const $ = (selector) => document.querySelector(selector);
@@ -79,6 +82,11 @@ function fillCategories() {
 
 function bindEvents() {
   $$(".nav-item").forEach(button => button.addEventListener("click", () => switchView(button.dataset.view)));
+  $$("[data-study-mode]").forEach(button => button.addEventListener("click", () => {
+    state.studyMode = button.dataset.studyMode;
+    $$("[data-study-mode]").forEach(b => b.classList.toggle("active", b === button));
+    renderCard();
+  }));
   $$("[data-direction]").forEach(button => button.addEventListener("click", () => {
     state.direction = button.dataset.direction;
     $$("[data-direction]").forEach(b => b.classList.toggle("active", b === button));
@@ -88,6 +96,7 @@ function bindEvents() {
   $("#shuffleButton").addEventListener("click", () => { buildSession(); toast("已换一组词"); });
   $("#flashcard").addEventListener("click", flipCard);
   $$(".rating").forEach(button => button.addEventListener("click", () => rateCard(button.dataset.rating)));
+  $("#nextChoiceButton").addEventListener("click", nextChoice);
   $("#searchInput").addEventListener("input", event => { state.query = event.target.value.trim().toLowerCase(); renderLexicon(); });
   $("#exportButton").addEventListener("click", exportProgress);
   $("#resetButton").addEventListener("click", resetProgress);
@@ -127,6 +136,10 @@ function renderCard() {
   const term = currentTerm();
   if (!term) return;
   const isEnglishFront = state.direction === "en-zh";
+  const isChoice = state.studyMode === "choice";
+  $("#studyView").classList.toggle("choice-mode", isChoice);
+  $("#flashcard").hidden = isChoice;
+  $("#choiceCard").hidden = !isChoice;
   $("#flashcard").classList.remove("flipped");
   $("#ratingPanel").classList.remove("ready");
   $("#frontCategory").textContent = term.category;
@@ -137,11 +150,58 @@ function renderCard() {
   $("#backPhonetic").textContent = term.phonetic;
   $("#backTerm").textContent = term.en;
   $("#backChinese").textContent = term.zh;
-  $("#backExample").textContent = term.example ? `${term.example}  ${term.note}` : term.note;
-  $("#backRoots").textContent = term.roots.length
-    ? term.roots.map(id => { const root = rootById(id); return `${root.form}（${root.meaning}）`; }).join(" + ")
-    : "该词建议结合语境整体记忆";
+  $("#backExample").textContent = term.example;
+  $("#backContextZh").textContent = term.contextZh;
+  $("#backRoots").textContent = term.breakdown.join(" + ");
+  if (isChoice) renderChoice(term);
   updateSessionUI();
+}
+
+function buildChoiceOptions(term) {
+  const seenChinese = new Set([term.zh]);
+  const sameCategory = shuffle(TERMS.filter(item => item.id !== term.id && item.category === term.category));
+  const otherCategories = shuffle(TERMS.filter(item => item.id !== term.id && item.category !== term.category));
+  const distractors = [];
+  [...sameCategory, ...otherCategories].forEach(item => {
+    if (distractors.length >= 3 || seenChinese.has(item.zh)) return;
+    seenChinese.add(item.zh);
+    distractors.push(item);
+  });
+  return shuffle([term, ...distractors]);
+}
+
+function renderChoice(term) {
+  state.choiceAnswered = false;
+  state.choiceOptions = buildChoiceOptions(term);
+  $("#choiceCategory").textContent = term.category;
+  $("#choicePhonetic").textContent = term.phonetic;
+  $("#choiceTerm").textContent = term.en;
+  $("#choiceExplanation").classList.remove("show");
+  $("#choiceOptions").innerHTML = state.choiceOptions.map((option, index) => `
+    <button class="choice-option" data-choice-id="${option.id}">
+      <kbd>${index + 1}</kbd><span>${option.zh}</span>
+    </button>`).join("");
+  $$("[data-choice-id]").forEach(button => button.addEventListener("click", () => answerChoice(button.dataset.choiceId)));
+}
+
+function answerChoice(selectedId) {
+  if (state.choiceAnswered) return;
+  state.choiceAnswered = true;
+  const term = currentTerm();
+  const isCorrect = selectedId === term.id;
+  $$("[data-choice-id]").forEach(button => {
+    button.disabled = true;
+    if (button.dataset.choiceId === term.id) button.classList.add("correct");
+    else if (button.dataset.choiceId === selectedId) button.classList.add("wrong");
+  });
+  $("#choiceVerdict").textContent = isCorrect ? "回答正确" : "再记一次";
+  $("#choiceVerdict").className = isCorrect ? "correct-text" : "wrong-text";
+  $("#choiceAnswer").textContent = `${term.en} · ${term.zh}`;
+  $("#choiceContext").textContent = term.example;
+  $("#choiceContextZh").textContent = term.contextZh;
+  $("#choiceRoots").textContent = term.breakdown.join(" + ");
+  $("#choiceExplanation").classList.add("show");
+  recordRating(term, isCorrect ? "easy" : "again");
 }
 
 function flipCard() {
@@ -152,6 +212,11 @@ function flipCard() {
 function rateCard(rating) {
   if (!$("#ratingPanel").classList.contains("ready")) return;
   const term = currentTerm();
+  recordRating(term, rating);
+  advanceSession();
+}
+
+function recordRating(term, rating) {
   const previous = state.progress.cards[term.id] || { level: 0, seen: 0 };
   let level = previous.level || 0;
   let delay = 0;
@@ -164,6 +229,10 @@ function rateCard(rating) {
   state.progress.lastStudy = today;
   state.sessionResults[state.index] = rating;
   saveProgress();
+  updateSessionUI();
+}
+
+function advanceSession() {
   if (state.index < state.queue.length - 1) {
     state.index++;
     renderCard();
@@ -171,6 +240,11 @@ function rateCard(rating) {
     toast("本轮完成，已根据掌握程度安排复习");
     setTimeout(buildSession, 500);
   }
+}
+
+function nextChoice() {
+  if (!state.choiceAnswered) { toast("请先选择一个答案"); return; }
+  advanceSession();
 }
 
 function updateSessionUI() {
@@ -293,6 +367,14 @@ function resetProgress() {
 
 function handleKeydown(event) {
   if (state.view !== "study" || event.target.matches("input, select")) return;
+  if (state.studyMode === "choice") {
+    if (["1","2","3","4"].includes(event.key) && !state.choiceAnswered) {
+      const option = $$('[data-choice-id]')[Number(event.key) - 1];
+      if (option) option.click();
+    }
+    if (event.key === "Enter") nextChoice();
+    return;
+  }
   if (event.code === "Space") { event.preventDefault(); flipCard(); }
   if (["1","2","3"].includes(event.key) && $("#ratingPanel").classList.contains("ready")) {
     rateCard({"1":"again","2":"hard","3":"easy"}[event.key]);

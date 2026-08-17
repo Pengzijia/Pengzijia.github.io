@@ -187,6 +187,38 @@ button { color: inherit; }
 .toast { position: fixed; left: 50%; bottom: 28px; transform: translate(-50%, 20px); padding: 10px 17px; border-radius: 99px; background: var(--ink); color: white; font-size: 11px; opacity: 0; pointer-events: none; transition: .25s; z-index: 99; }
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
 
+.context-box small, .choice-explanation small { display: block; margin-top: 6px; color: #718078; font-size: 9px; line-height: 1.6; }
+.choice-card { display: none; min-height: 435px; padding: 28px 34px; border: 1px solid #d7e3da; border-radius: var(--radius); background: white; box-shadow: var(--shadow); }
+.choice-mode .choice-card { display: block; }
+.choice-mode .direction-switch, .choice-mode .rating-panel { display: none; }
+.choice-head { display: flex; justify-content: space-between; align-items: center; }
+.choice-head span { padding: 5px 9px; border-radius: 6px; color: var(--green-dark); background: var(--green-soft); font-size: 9px; letter-spacing: .8px; }
+.choice-head i { color: #9ba69f; font-size: 9px; font-style: normal; }
+.choice-question { margin: 28px 0 22px; text-align: center; }
+.choice-question p { margin: 0 0 8px; color: var(--green); font: 14px Georgia, serif; }
+.choice-question h2 { margin: 0; font: 500 clamp(34px, 4.2vw, 52px) Georgia, serif; letter-spacing: -1px; }
+.choice-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.choice-option { min-height: 57px; padding: 10px 14px; border: 1px solid var(--line); border-radius: 12px; display: flex; align-items: center; gap: 11px; background: var(--paper); text-align: left; cursor: pointer; transition: .18s ease; }
+.choice-option:hover:not(:disabled) { border-color: #82aa8d; background: #f1f7f2; transform: translateY(-1px); }
+.choice-option kbd { min-width: 23px; padding: 4px 6px; border-radius: 6px; background: white; color: var(--green); text-align: center; font-size: 9px; box-shadow: 0 1px 3px rgba(36,75,51,.08); }
+.choice-option span { font-size: 12px; line-height: 1.4; }
+.choice-option.correct { border-color: #54a573; background: #e6f5ea; }
+.choice-option.wrong { border-color: #d98279; background: #fae9e7; }
+.choice-option:disabled { cursor: default; opacity: .72; }
+.choice-option.correct:disabled, .choice-option.wrong:disabled { opacity: 1; }
+.choice-explanation { display: none; margin-top: 18px; padding-top: 17px; border-top: 1px solid var(--line); grid-template-columns: 1fr 1fr; gap: 13px 22px; }
+.choice-explanation.show { display: grid; animation: fade .22s ease; }
+.choice-explanation > div:not(.choice-verdict) { padding: 12px 14px; border-radius: 11px; background: var(--green-soft); }
+.choice-explanation > div > span { display: block; margin-bottom: 5px; color: var(--green); font-size: 8px; font-weight: 800; letter-spacing: 1px; }
+.choice-explanation p { margin: 0; font-size: 10px; line-height: 1.65; }
+.choice-verdict { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; }
+.choice-verdict strong { font-size: 13px; }
+.choice-verdict span { font: 16px Georgia, "Songti SC", serif; }
+.correct-text { color: var(--green); }
+.wrong-text { color: #b65d56; }
+.choice-explanation > button { grid-column: 1 / -1; justify-self: end; border: 0; border-radius: 10px; padding: 9px 14px; background: var(--green-dark); color: white; font-size: 10px; cursor: pointer; }
+.choice-explanation > button kbd { margin-left: 7px; padding: 2px 5px; border-radius: 4px; background: rgba(255,255,255,.16); font-size: 8px; }
+
 @media (max-width: 1040px) {
   .app-shell { grid-template-columns: 82px 1fr; }
   .sidebar { padding-inline: 13px; }
@@ -216,6 +248,10 @@ button { color: inherit; }
   .shuffle-button { margin-left: 0; }
   .study-layout { display: block; }
   .flashcard { height: 405px; }
+  .choice-card { min-height: 405px; padding: 24px 20px; }
+  .choice-options { grid-template-columns: 1fr; }
+  .choice-explanation { grid-template-columns: 1fr; }
+  .choice-verdict, .choice-explanation > button { grid-column: auto; }
   .card-face { padding: 24px 22px 20px; }
   .insight-panel { grid-template-columns: 1fr; margin-top: 20px; }
   .today-card { display: none; }
