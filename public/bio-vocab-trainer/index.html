@@ -57,7 +57,11 @@
 
       <section class="view active" id="studyView">
         <div class="study-toolbar">
-          <div class="segmented" role="group" aria-label="卡片方向">
+          <div class="segmented mode-switch" role="group" aria-label="刷词模式">
+            <button class="active" data-study-mode="flashcard">翻面记忆</button>
+            <button data-study-mode="choice">英文选中文</button>
+          </div>
+          <div class="segmented direction-switch" role="group" aria-label="卡片方向">
             <button class="active" data-direction="en-zh">英 → 中</button>
             <button data-direction="zh-en">中 → 英</button>
           </div>
@@ -96,6 +100,7 @@
                     <div class="context-box">
                       <span>语境记忆</span>
                       <p id="backExample"></p>
+                      <small id="backContextZh"></small>
                     </div>
                     <div class="root-line"><span>词根拆解</span><p id="backRoots"></p></div>
                   </div>
@@ -103,6 +108,24 @@
                 </article>
               </div>
             </button>
+
+            <article class="choice-card" id="choiceCard" aria-live="polite">
+              <div class="choice-head">
+                <span id="choiceCategory">分子生物学</span>
+                <i>选择最准确的中文释义</i>
+              </div>
+              <div class="choice-question">
+                <p id="choicePhonetic"></p>
+                <h2 id="choiceTerm"></h2>
+              </div>
+              <div class="choice-options" id="choiceOptions"></div>
+              <div class="choice-explanation" id="choiceExplanation">
+                <div class="choice-verdict"><strong id="choiceVerdict"></strong><span id="choiceAnswer"></span></div>
+                <div><span>语境记忆</span><p id="choiceContext"></p><small id="choiceContextZh"></small></div>
+                <div><span>词根拆解</span><p id="choiceRoots"></p></div>
+                <button id="nextChoiceButton">下一词 <kbd>Enter</kbd></button>
+              </div>
+            </article>
 
             <div class="rating-panel" id="ratingPanel">
               <button class="rating again" data-rating="again"><kbd>1</kbd><span><strong>忘记了</strong><small>稍后再来</small></span></button>
@@ -166,6 +189,7 @@
   <div class="toast" id="toast" role="status"></div>
   <script src="data.js"></script>
   <script src="expanded-data.js"></script>
+  <script src="enrichment.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
